@@ -3,7 +3,7 @@ package ws
 import (
 	"encoding/json"
 	"fmt"
-	"gateaway/binance/ws/models"
+	"gateaway/binance/models"
 	"github.com/gorilla/websocket"
 	"log"
 )
@@ -14,12 +14,14 @@ type BinanceWsClient struct {
 	baseURL       string
 	connections   *websocket.Conn
 	subscriptions map[string]*websocket.Conn
-	close         chan struct{}
+	close         chan struct{} // channel to close connection
 }
 
-func NewBinanceWsClient() *BinanceWsClient {
+func NewBinanceWsClient(apiKey, secretKey string) *BinanceWsClient {
 	return &BinanceWsClient{
 		baseURL: "wss://stream.binance.com:9443/ws/",
+		APIKey:  apiKey,
+		Secret:  secretKey,
 	}
 }
 
@@ -32,6 +34,7 @@ func (client *BinanceWsClient) subscribe(url string, handler func(message []byte
 	}
 
 	go func() {
+		// Wait to close connection in a separate goroutine while getting updates from WS
 		go func() {
 			<-done
 			defer conn.Close()
