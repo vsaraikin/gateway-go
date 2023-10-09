@@ -21,4 +21,4 @@ go run main.go
 1. Graceful shutdown – all connections are ended smoothly.
 2. Ready to scale to other endpoints.
 3. Runs each subscription in a different goroutine (thread).
-4. Pass config with `API_KEY` and `SECRET_KEY` to `./config/.env file`.
+4. Pass config with `API_KEY` and `SECRET_KEY` to `./config/.env` file.
