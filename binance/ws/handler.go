@@ -25,7 +25,7 @@ func NewBinanceWsClient(apiKey, secretKey string) *BinanceWsClient {
 	}
 }
 
-func (client *BinanceWsClient) subscribe(url string, handler func(message []byte) error) (error, chan<- struct{}) {
+func (c *BinanceWsClient) subscribe(url string, handler func(message []byte) error) (error, chan<- struct{}) {
 	done := make(chan struct{})
 
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
@@ -62,7 +62,7 @@ func (client *BinanceWsClient) subscribe(url string, handler func(message []byte
 
 type handlerEvent func(e *models.DepthEvent)
 
-func (client *BinanceWsClient) serveDepth(url string, handler handlerEvent) (error, chan<- struct{}) {
+func (c *BinanceWsClient) serveDepth(url string, handler handlerEvent) (error, chan<- struct{}) {
 	wsHandler := func(event []byte) error {
 		depthEventRaw := new(models.DepthEventRaw)
 		if err := json.Unmarshal(event, depthEventRaw); err != nil {
@@ -72,10 +72,10 @@ func (client *BinanceWsClient) serveDepth(url string, handler handlerEvent) (err
 		handler(depthEvent)
 		return nil
 	}
-	return client.subscribe(url, wsHandler)
+	return c.subscribe(url, wsHandler)
 }
 
-func (client *BinanceWsClient) SubscribeDepth(symbol string, handler handlerEvent) (error, chan<- struct{}) {
-	url := fmt.Sprintf("%s%s@depth", client.baseURL, symbol)
-	return client.serveDepth(url, handler)
+func (c *BinanceWsClient) SubscribeDepth(symbol string, handler handlerEvent) (error, chan<- struct{}) {
+	url := fmt.Sprintf("%s%s@depth", c.baseURL, symbol)
+	return c.serveDepth(url, handler)
 }

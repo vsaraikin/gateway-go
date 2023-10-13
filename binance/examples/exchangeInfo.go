@@ -16,10 +16,11 @@ func main() {
 	// for the example apiKey and secretKey are empty
 	client := v3.NewBinanceClient("", "")
 
-	err := client.NewOrderTest()
+	response, err := client.GetExchangeInfo()
 
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
 
+	fmt.Println(response)
 }
