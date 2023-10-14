@@ -7,6 +7,39 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"time"
+)
+
+// OrderType and other enum values
+const (
+	BUY  = "BUY"
+	SELL = "SELL"
+
+	// Order types
+	LIMIT             = "LIMIT"
+	MARKET            = "MARKET"
+	STOP_LOSS         = "STOP_LOSS"
+	STOP_LOSS_LIMIT   = "STOP_LOSS_LIMIT"
+	TAKE_PROFIT       = "TAKE_PROFIT"
+	TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT"
+	LIMIT_MAKER       = "LIMIT_MAKER"
+
+	// Time in force
+	GTC = "GTC"
+	IOC = "IOC"
+	FOK = "FOK"
+
+	// New Order Response Type
+	ACK    = "ACK"
+	RESULT = "RESULT"
+	FULL   = "FULL"
+
+	// Self Trade Prevention Mode
+	EXPIRE_TAKER = "EXPIRE_TAKER"
+	EXPIRE_MAKER = "EXPIRE_MAKER"
+	EXPIRE_BOTH  = "EXPIRE_BOTH"
+	NONE         = "NONE"
 )
 
 type BinanceClient struct {
@@ -25,13 +58,35 @@ func NewBinanceClient(apiKey, secretKey string) *BinanceClient {
 	}
 }
 
-func (c *BinanceClient) executeRequest(method, url string, body io.Reader, target interface{}, sign bool, params map[string]interface{}) error {
-	if sign {
-		url = fmt.Sprintf("%s&signature=%s", url, signature(url, c.Secret))
+func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, target interface{}, sign bool, params interface{}) error {
+	m := map[string]interface{}{
+		"symbol":     "BTCUSDT",
+		"side":       "BUY",
+		"quantity":   1,
+		"type":       "MARKET",
+		"recvWindow": 10000,
+		"timestamp":  time.Now().UnixMilli(),
 	}
-	// url.Values as params for request
 
-	req, err := http.NewRequest(method, url, body)
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		return err
+	}
+
+	// Converting map to url.Values
+	values := url.Values{}
+	for key, value := range m {
+		values.Add(key, fmt.Sprintf("%v", value))
+	}
+
+	// Encoding map as URL parameters
+	u.RawQuery = values.Encode()
+
+	if sign {
+		u.RawQuery = fmt.Sprintf("%s&signature=%s", u.RawQuery, signature(u.RawQuery, c.Secret))
+	}
+
+	req, err := http.NewRequest(method, u.String(), body) // passing 'body' instead of 'nil'
 	if err != nil {
 		return err
 	}
@@ -39,6 +94,8 @@ func (c *BinanceClient) executeRequest(method, url string, body io.Reader, targe
 	if sign {
 		req.Header.Add("X-MBX-APIKEY", c.APIKey)
 	}
+
+	fmt.Println(u.RequestURI())
 
 	response, err := c.client.Do(req)
 	if err != nil {
@@ -62,7 +119,7 @@ func (c *BinanceClient) executeRequest(method, url string, body io.Reader, targe
 
 func (c *BinanceClient) getExchangeInfo(url string) (*models.ExchangeInfo, error) {
 	info := &models.ExchangeInfo{}
-	params := make(map[string]interface{})
+	params := make(map[string]string)
 	err := c.executeRequest("GET", url, nil, info, false, params)
 
 	if err != nil {
@@ -81,12 +138,12 @@ func (c *BinanceClient) GetExchangeInfo() (*models.ExchangeInfo, error) {
 // ––––––––––– SPOT TRADING –––––––––––
 
 func (c *BinanceClient) testNewOrder(url string, r interface{}) error {
-	params, err := parseModel(r)
-	if err != nil {
-		return err
-	}
+	//params, err := parseModel(r)
+	//if err != nil {
+	//	return err
+	//}
 
-	err = c.executeRequest("POST", url, nil, struct{}{}, true, params)
+	err := c.executeRequest("POST", url, nil, struct{}{}, true, r)
 
 	if err != nil {
 		return err
