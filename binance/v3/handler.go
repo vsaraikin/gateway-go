@@ -4,42 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"gateaway/binance/models"
+	"github.com/google/go-querystring/query"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
-)
-
-// OrderType and other enum values
-const (
-	BUY  = "BUY"
-	SELL = "SELL"
-
-	// Order types
-	LIMIT             = "LIMIT"
-	MARKET            = "MARKET"
-	STOP_LOSS         = "STOP_LOSS"
-	STOP_LOSS_LIMIT   = "STOP_LOSS_LIMIT"
-	TAKE_PROFIT       = "TAKE_PROFIT"
-	TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT"
-	LIMIT_MAKER       = "LIMIT_MAKER"
-
-	// Time in force
-	GTC = "GTC"
-	IOC = "IOC"
-	FOK = "FOK"
-
-	// New Order Response Type
-	ACK    = "ACK"
-	RESULT = "RESULT"
-	FULL   = "FULL"
-
-	// Self Trade Prevention Mode
-	EXPIRE_TAKER = "EXPIRE_TAKER"
-	EXPIRE_MAKER = "EXPIRE_MAKER"
-	EXPIRE_BOTH  = "EXPIRE_BOTH"
-	NONE         = "NONE"
 )
 
 type BinanceClient struct {
@@ -59,28 +28,15 @@ func NewBinanceClient(apiKey, secretKey string) *BinanceClient {
 }
 
 func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, target interface{}, sign bool, params interface{}) error {
-	m := map[string]interface{}{
-		"symbol":     "BTCUSDT",
-		"side":       "BUY",
-		"quantity":   1,
-		"type":       "MARKET",
-		"recvWindow": 10000,
-		"timestamp":  time.Now().UnixMilli(),
-	}
-
+	// Parse the base URL
 	u, err := url.Parse(endpoint)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
-	// Converting map to url.Values
-	values := url.Values{}
-	for key, value := range m {
-		values.Add(key, fmt.Sprintf("%v", value))
-	}
+	q, _ := query.Values(params) // use google lib to crawl map into url params
 
-	// Encoding map as URL parameters
-	u.RawQuery = values.Encode()
+	u.RawQuery = q.Encode()
 
 	if sign {
 		u.RawQuery = fmt.Sprintf("%s&signature=%s", u.RawQuery, signature(u.RawQuery, c.Secret))
@@ -91,11 +47,11 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 		return err
 	}
 
+	fmt.Println(u.String())
+
 	if sign {
 		req.Header.Add("X-MBX-APIKEY", c.APIKey)
 	}
-
-	fmt.Println(u.RequestURI())
 
 	response, err := c.client.Do(req)
 	if err != nil {
@@ -118,27 +74,27 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 // ––––––––––– MARKET DATA –––––––––––
 
 func (c *BinanceClient) getExchangeInfo(url string) (*models.ExchangeInfo, error) {
-	info := &models.ExchangeInfo{}
-	params := make(map[string]string)
-	err := c.executeRequest("GET", url, nil, info, false, params)
+	response := &models.ExchangeInfo{}
+	var params interface{} // no params needed
+	err := c.executeRequest("GET", url, nil, response, false, params)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return info, nil
+	return response, nil
 }
 
 // GetExchangeInfo Current exchange trading rules and symbol information
 func (c *BinanceClient) GetExchangeInfo() (*models.ExchangeInfo, error) {
-	url := fmt.Sprintf("%s%s", c.BaseURL, exchangeInfo)
-	return c.getExchangeInfo(url)
+	fullUrl := fmt.Sprintf("%s%s", c.BaseURL, exchangeInfo)
+	return c.getExchangeInfo(fullUrl)
 }
 
 // ––––––––––– SPOT TRADING –––––––––––
 
-func (c *BinanceClient) testNewOrder(url string, r interface{}) error {
-	//params, err := parseModel(r)
+func (c *BinanceClient) testNewOrder(url string, r models.OrderRequest) error {
+	// TODO: Add a class around each request model to validate each model
 	//if err != nil {
 	//	return err
 	//}
@@ -156,6 +112,6 @@ func (c *BinanceClient) testNewOrder(url string, r interface{}) error {
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.
 func (c *BinanceClient) NewOrderTest(request models.OrderRequest) error {
-	url := fmt.Sprintf("%s%s", c.BaseURL, testNewOrder)
-	return c.testNewOrder(url, request)
+	fullUrl := fmt.Sprintf("%s%s", c.BaseURL, testNewOrder)
+	return c.testNewOrder(fullUrl, request)
 }

@@ -30,6 +30,8 @@ go run main.go
 3. Errors handling and custom types
 4. Add validation while sending request that there is no typo.
 
+[//]: # (5. Make a full library of references for other libs )
+
 
 ## References:
 
