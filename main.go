@@ -12,6 +12,7 @@ func main() {
 	// Load config from ./config/.env
 	apiKey, secretKey, err := config.LoadEnv()
 	if err != nil {
+
 		fmt.Println(err)
 		return
 	}
