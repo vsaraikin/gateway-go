@@ -6,9 +6,8 @@ import (
 	"gateaway/binance/models"
 	"github.com/google/go-querystring/query"
 	"io"
-	"io/ioutil"
 	"net/http"
-	"net/url"
+	urlib "net/url"
 )
 
 type BinanceClient struct {
@@ -29,7 +28,7 @@ func NewBinanceClient(apiKey, secretKey string) *BinanceClient {
 
 func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, target interface{}, sign bool, params interface{}) error {
 	// Parse the base URL
-	u, err := url.Parse(endpoint)
+	u, err := urlib.Parse(endpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +41,7 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 		u.RawQuery = fmt.Sprintf("%s&signature=%s", u.RawQuery, signature(u.RawQuery, c.Secret))
 	}
 
-	req, err := http.NewRequest(method, u.String(), body) // passing 'body' instead of 'nil'
+	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return err
 	}
@@ -63,7 +62,7 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 		return fmt.Errorf("HTTP request failed with status code: %d", response.StatusCode)
 	}
 
-	data, err := ioutil.ReadAll(response.Body)
+	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
 	}
@@ -76,7 +75,7 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 func (c *BinanceClient) getExchangeInfo(url string) (*models.ExchangeInfo, error) {
 	response := &models.ExchangeInfo{}
 	var params interface{} // no params needed
-	err := c.executeRequest("GET", url, nil, response, false, params)
+	err := c.executeRequest(http.MethodGet, url, nil, response, false, params)
 
 	if err != nil {
 		return nil, err
@@ -87,20 +86,19 @@ func (c *BinanceClient) getExchangeInfo(url string) (*models.ExchangeInfo, error
 
 // GetExchangeInfo Current exchange trading rules and symbol information
 func (c *BinanceClient) GetExchangeInfo() (*models.ExchangeInfo, error) {
-	fullUrl := fmt.Sprintf("%s%s", c.BaseURL, exchangeInfo)
-	return c.getExchangeInfo(fullUrl)
+	url := fmt.Sprintf("%s%s", c.BaseURL, exchangeInfo)
+	return c.getExchangeInfo(url)
 }
 
 // ––––––––––– SPOT TRADING –––––––––––
 
 func (c *BinanceClient) testNewOrder(url string, r models.OrderRequest) error {
-	// TODO: Add a class around each request model to validate each model
-	//if err != nil {
-	//	return err
-	//}
+	err := r.Validate()
+	if err != nil {
+		return err
+	}
 
-	err := c.executeRequest("POST", url, nil, struct{}{}, true, r)
-
+	err = c.executeRequest(http.MethodPost, url, nil, struct{}{}, true, r)
 	if err != nil {
 		return err
 	}
@@ -111,7 +109,16 @@ func (c *BinanceClient) testNewOrder(url string, r models.OrderRequest) error {
 // NewOrderTest
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.
-func (c *BinanceClient) NewOrderTest(request models.OrderRequest) error {
-	fullUrl := fmt.Sprintf("%s%s", c.BaseURL, testNewOrder)
-	return c.testNewOrder(fullUrl, request)
+func (c *BinanceClient) NewOrderTest(r models.OrderRequest) error {
+	url := fmt.Sprintf("%s%s", c.BaseURL, testNewOrder)
+	return c.testNewOrder(url, r)
+}
+
+func (c *BinanceClient) newOrder(url string, r models.OrderRequest) (models.OrderResponseAck, error) {
+	return models.OrderResponseAck{}, nil
+}
+
+func (c *BinanceClient) NewOrder(r models.OrderRequest) (models.OrderResponseAck, error) {
+	url := fmt.Sprintf("%s%s", c.BaseURL, testNewOrder)
+	return c.newOrder(url, r)
 }
