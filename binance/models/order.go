@@ -85,6 +85,7 @@ func stringInSlice(str string, list []string) bool {
 	return false
 }
 
+// TODO: Add better types for `enum` values
 // OrderType and other enum values
 const (
 	BUY  = "BUY"
