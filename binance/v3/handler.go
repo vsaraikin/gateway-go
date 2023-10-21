@@ -86,11 +86,13 @@ func (c *BinanceClient) getExchangeInfo(url string) (*models.ExchangeInfo, error
 
 // GetExchangeInfo Current exchange trading rules and symbol information
 func (c *BinanceClient) GetExchangeInfo() (*models.ExchangeInfo, error) {
-	url := fmt.Sprintf("%s%s", c.BaseURL, exchangeInfo)
+	url := c.buildURL(exchangeInfo)
 	return c.getExchangeInfo(url)
 }
 
 // ––––––––––– SPOT TRADING –––––––––––
+
+// TODO: Concat testNewOrder and newOrder
 
 func (c *BinanceClient) testNewOrder(url string, r models.OrderRequest) error {
 	err := r.Validate()
@@ -110,7 +112,7 @@ func (c *BinanceClient) testNewOrder(url string, r models.OrderRequest) error {
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.
 func (c *BinanceClient) NewOrderTest(r models.OrderRequest) error {
-	url := fmt.Sprintf("%s%s", c.BaseURL, testNewOrder)
+	url := c.buildURL(testNewOrder)
 	return c.testNewOrder(url, r)
 }
 
@@ -133,6 +135,6 @@ func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*model
 }
 
 func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseFull, error) {
-	url := fmt.Sprintf("%s%s", c.BaseURL, newOrder)
+	url := c.buildURL(newOrder)
 	return c.newOrder(url, r)
 }

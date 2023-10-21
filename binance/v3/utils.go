@@ -12,3 +12,7 @@ func signature(message, secret string) string {
 	signingKey := fmt.Sprintf("%x", mac.Sum(nil))
 	return signingKey
 }
+
+func (c *BinanceClient) buildURL(endpoint string) string {
+	return fmt.Sprintf("%s%s", c.BaseURL, endpoint)
+}
