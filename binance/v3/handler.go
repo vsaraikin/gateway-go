@@ -33,7 +33,7 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 		panic(err)
 	}
 
-	q, _ := query.Values(params) // use google lib to crawl map into url params
+	q, _ := query.Values(params)
 
 	u.RawQuery = q.Encode()
 
@@ -114,11 +114,25 @@ func (c *BinanceClient) NewOrderTest(r models.OrderRequest) error {
 	return c.testNewOrder(url, r)
 }
 
-func (c *BinanceClient) newOrder(url string, r models.OrderRequest) (models.OrderResponseAck, error) {
-	return models.OrderResponseAck{}, nil
+func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*models.OrderResponseFull, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	// When making the API call, you can specify which response type you want by setting
+	// the newOrderRespType parameter to either ACK, RESULT, or FULL.
+	// If you don't specify a type, the default is RESULT.
+	response := &models.OrderResponseFull{}
+	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }
 
-func (c *BinanceClient) NewOrder(r models.OrderRequest) (models.OrderResponseAck, error) {
-	url := fmt.Sprintf("%s%s", c.BaseURL, testNewOrder)
+func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseFull, error) {
+	url := fmt.Sprintf("%s%s", c.BaseURL, newOrder)
 	return c.newOrder(url, r)
 }

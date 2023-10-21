@@ -12,7 +12,6 @@ func main() {
 	// Load config from ./config/.env
 	apiKey, secretKey, err := config.LoadEnv()
 	if err != nil {
-
 		fmt.Println(err)
 		return
 	}
@@ -20,7 +19,7 @@ func main() {
 	// for the example apiKey and secretKey are empty
 	client := v3.NewBinanceClient(apiKey, secretKey)
 
-	err = client.NewOrderTest(models.OrderRequest{
+	order, err := client.NewOrder(models.OrderRequest{
 		Symbol:     "BTCUSDT",
 		Side:       models.BUY,
 		Type:       models.MARKET,
@@ -31,12 +30,5 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
-	info, err := client.GetExchangeInfo()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	fmt.Println(info)
-
+	fmt.Println(order)
 }

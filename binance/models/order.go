@@ -32,6 +32,7 @@ type OrderRequest struct {
 	SelfTradePreventionMode *string `url:"selfTradePreventionMode,omitempty"`
 }
 
+// Validate request TODO: Add better validation
 func (o *OrderRequest) Validate() error {
 	// Required fields
 	if o.Symbol == "" {
