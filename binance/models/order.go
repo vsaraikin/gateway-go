@@ -17,12 +17,12 @@ type OrderRequest struct {
 	Side                    string  `url:"side"`
 	Type                    string  `url:"type"`
 	TimeInForce             string  `url:"timeInForce,omitempty"`
-	Quantity                int64   `url:"quantity,omitempty"`
-	QuoteOrderQty           string  `url:"quoteOrderQty,omitempty"`
-	Price                   string  `url:"price,omitempty"`
+	Quantity                float32 `url:"quantity"`
+	QuoteOrderQty           float32 `url:"quoteOrderQty,omitempty"`
+	Price                   float32 `url:"price,omitempty"`
 	NewClientOrderID        string  `url:"newClientOrderId,omitempty"`
-	StopPrice               string  `url:"stopPrice,omitempty"`
-	IcebergQty              string  `url:"icebergQty,omitempty"`
+	StopPrice               float32 `url:"stopPrice,omitempty"`
+	IcebergQty              float32 `url:"icebergQty,omitempty"`
 	NewOrderRespType        string  `url:"newOrderRespType,omitempty"`
 	RecvWindow              int64   `url:"recvWindow,omitempty"`
 	Timestamp               int64   `url:"timestamp"`
@@ -70,7 +70,7 @@ func (o *OrderRequest) Validate() error {
 
 	// Validate Quantity if present (should be greater than 0)
 	if o.Quantity != 0 && o.Quantity <= 0 {
-		return errors.New("Quantity should be greater than 0")
+		return errors.New("quantity should be greater than 0")
 	}
 
 	return nil

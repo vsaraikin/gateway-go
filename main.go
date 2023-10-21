@@ -24,13 +24,13 @@ func main() {
 	// for the example apiKey and secretKey are empty
 	client := v3.NewBinanceClient(apiKey, secretKey)
 
-	order, err := client.NewOrder(models.OrderRequest{
-		Symbol:     "BTCUSDT",
+	order, err := client.NewOrderTest(models.OrderRequest{
+		Symbol:     "ETHUSDT",
 		Side:       "BUY",
 		Type:       "MARKET",
-		Quantity:   1,
+		Quantity:   6,
 		RecvWindow: 10000,
-		Timestamp:  time.Now().UnixMilli()})
+		Timestamp:  time.Now().UTC().UnixMilli()})
 
 	if err != nil {
 		fmt.Println(err.Error())

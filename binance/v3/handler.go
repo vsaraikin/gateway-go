@@ -30,10 +30,13 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 	// Parse the base URL
 	u, err := urlib.Parse(endpoint)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	q, _ := query.Values(params)
+	q, err := query.Values(params)
+	if err != nil {
+		return err
+	}
 
 	u.RawQuery = q.Encode()
 
@@ -94,29 +97,20 @@ func (c *BinanceClient) GetExchangeInfo() (*models.ExchangeInfo, error) {
 
 // TODO: Concat testNewOrder and newOrder
 
-func (c *BinanceClient) testNewOrder(url string, r models.OrderRequest) error {
-	err := r.Validate()
-	if err != nil {
-		return err
-	}
-
-	err = c.executeRequest(http.MethodPost, url, nil, struct{}{}, true, r)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // NewOrderTest
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.
-func (c *BinanceClient) NewOrderTest(r models.OrderRequest) error {
+func (c *BinanceClient) NewOrderTest(r models.OrderRequest) (*models.OrderResponseResult, error) {
 	url := c.buildURL(testNewOrder)
-	return c.testNewOrder(url, r)
+	return c.newOrder(url, r)
 }
 
-func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*models.OrderResponseFull, error) {
+func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseResult, error) {
+	url := c.buildURL(newOrder)
+	return c.newOrder(url, r)
+}
+
+func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*models.OrderResponseResult, error) {
 	err := params.Validate()
 	if err != nil {
 		return nil, err
@@ -125,16 +119,11 @@ func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*model
 	// When making the API call, you can specify which response type you want by setting
 	// the newOrderRespType parameter to either ACK, RESULT, or FULL.
 	// If you don't specify a type, the default is RESULT.
-	response := &models.OrderResponseFull{}
+	response := &models.OrderResponseResult{}
 	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
 	if err != nil {
 		return nil, err
 	}
 
 	return response, nil
-}
-
-func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseFull, error) {
-	url := c.buildURL(newOrder)
-	return c.newOrder(url, r)
 }
