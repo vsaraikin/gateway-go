@@ -7,13 +7,6 @@ import (
 	"gateaway/config"
 )
 
-// TODO:
-// 1. Change prices and quantity to `decimal.Decimal`
-// 2. Add lawyers such as signedPost, signedGet, unsignedPost....
-// 3. Move out executeRequest from Binance class
-// 4. Measure time exec.
-// 5. Timestamp should automatically be signed
-
 func main() {
 	// Load config from ./config/.env
 	apiKey, secretKey, err := config.LoadEnv()

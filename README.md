@@ -31,6 +31,11 @@ go run main.go
 4. Add validation while sending request that there is no typo.
 5. CI/CD pipeline:
    - Linter
+6. Change prices and quantity to `decimal.Decimal`
+7. Add lawyers such as signedPost, signedGet, unsignedPost....
+8. Move out executeRequest from Binance class
+9. Measure time exec.
+10. Timestamp should automatically be signed
 
 [//]: # (5. Make a full library of references for other libs )
 
