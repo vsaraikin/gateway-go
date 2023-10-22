@@ -115,8 +115,6 @@ func (c *BinanceClient) GetDepth(r models.DepthRequest) (*models.DepthResponse, 
 
 // ––––––––––– SPOT TRADING –––––––––––
 
-// TODO: Concat testNewOrder and newOrder
-
 // NewOrderTest
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.

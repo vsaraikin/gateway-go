@@ -32,20 +32,20 @@ type OrderRequest struct {
 	SelfTradePreventionMode *string `url:"selfTradePreventionMode,omitempty"`
 }
 
-// Validate request TODO: Add better validation
+// Validate request
 func (o *OrderRequest) Validate() error {
 	// Required fields
 	if o.Symbol == "" {
-		return errors.New("Symbol is required")
+		return errors.New("symbol is required")
 	}
 	if o.Side == "" {
-		return errors.New("Side is required")
+		return errors.New("side is required")
 	}
 	if o.Type == "" {
-		return errors.New("Type is required")
+		return errors.New("type is required")
 	}
 	if o.Timestamp == 0 {
-		return errors.New("Timestamp is required")
+		return errors.New("timestamp is required")
 	}
 
 	// Validate Side values
@@ -85,8 +85,6 @@ func stringInSlice(str string, list []string) bool {
 	}
 	return false
 }
-
-// TODO: Add better types for `enum` values e.g. order – BUY/SELL, LIMIT/MARKET, etc.
 
 type OrderResponseAck struct {
 	Symbol        string `json:"symbol"`

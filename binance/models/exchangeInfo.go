@@ -28,5 +28,3 @@ type ExchangeInfo struct {
 		AllowedSelfTradePreventionModes []string      `json:"allowedSelfTradePreventionModes"`
 	} `json:"symbols"`
 }
-
-// TODO: rewrite in a better way, with consts and reusage
