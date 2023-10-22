@@ -5,6 +5,7 @@ import (
 	"gateaway/binance/models"
 	v3 "gateaway/binance/v3"
 	"gateaway/config"
+	"time"
 )
 
 func main() {
@@ -17,12 +18,16 @@ func main() {
 
 	client := v3.NewBinanceClient(apiKey, secretKey)
 
-	depth, err := client.GetDepth(models.DepthRequest{
-		Symbol: "SOLUSDT",
-	})
+	order, err := client.NewOrderTest(models.OrderRequest{
+		Symbol:     "ETHUSDT",
+		Side:       "BUY",
+		Type:       "MARKET",
+		Quantity:   0.1,
+		RecvWindow: 10000,
+		Timestamp:  time.Now().UnixMilli()})
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(depth)
+	fmt.Println(order)
 }
