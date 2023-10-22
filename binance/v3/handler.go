@@ -93,6 +93,26 @@ func (c *BinanceClient) GetExchangeInfo() (*models.ExchangeInfo, error) {
 	return c.getExchangeInfo(url)
 }
 
+func (c *BinanceClient) getDepth(url string, params models.DepthRequest) (*models.DepthResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.DepthResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, false, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetDepth(r models.DepthRequest) (*models.DepthResponse, error) {
+	url := c.buildURL(depth)
+	return c.getDepth(url, r)
+}
+
 // ––––––––––– SPOT TRADING –––––––––––
 
 // TODO: Concat testNewOrder and newOrder
@@ -100,17 +120,17 @@ func (c *BinanceClient) GetExchangeInfo() (*models.ExchangeInfo, error) {
 // NewOrderTest
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.
-func (c *BinanceClient) NewOrderTest(r models.OrderRequest) (*models.OrderResponseResult, error) {
+func (c *BinanceClient) NewOrderTest(r models.OrderRequest) (*models.OrderResponseFull, error) {
 	url := c.buildURL(testNewOrder)
 	return c.newOrder(url, r)
 }
 
-func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseResult, error) {
+func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseFull, error) {
 	url := c.buildURL(newOrder)
 	return c.newOrder(url, r)
 }
 
-func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*models.OrderResponseResult, error) {
+func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*models.OrderResponseFull, error) {
 	err := params.Validate()
 	if err != nil {
 		return nil, err
@@ -119,7 +139,7 @@ func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*model
 	// When making the API call, you can specify which response type you want by setting
 	// the newOrderRespType parameter to either ACK, RESULT, or FULL.
 	// If you don't specify a type, the default is RESULT.
-	response := &models.OrderResponseResult{}
+	response := &models.OrderResponseFull{}
 	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
 	if err != nil {
 		return nil, err

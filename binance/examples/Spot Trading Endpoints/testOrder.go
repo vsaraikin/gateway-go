@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"gateaway/binance/models"
 	v3 "gateaway/binance/v3"
 	"gateaway/config"
+	"time"
 )
 
 func main() {
@@ -14,14 +16,18 @@ func main() {
 		return
 	}
 
-	// for the example apiKey and secretKey are empty
 	client := v3.NewBinanceClient(apiKey, secretKey)
 
-	response, err := client.GetExchangeInfo()
+	order, err := client.NewOrderTest(models.OrderRequest{
+		Symbol:     "ETHUSDT",
+		Side:       "BUY",
+		Type:       "MARKET",
+		Quantity:   0.1,
+		RecvWindow: 10000,
+		Timestamp:  time.Now().UnixMilli()})
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
-	fmt.Println(response)
+	fmt.Println(order)
 }

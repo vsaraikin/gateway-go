@@ -3,7 +3,7 @@ package ws
 import (
 	"encoding/json"
 	"fmt"
-	"gateaway/binance/models"
+	"gateaway/binance/ws/models"
 	"github.com/gorilla/websocket"
 	"log"
 )
@@ -53,6 +53,7 @@ func (c *BinanceWsClient) subscribe(url string, handler func(message []byte) err
 			err = handler(message)
 			if err != nil {
 				fmt.Errorf(err.Error())
+				// TODO: better handling
 			}
 		}
 	}()
@@ -67,6 +68,7 @@ func (c *BinanceWsClient) serveDepth(url string, handler handlerEvent) (error, c
 		depthEventRaw := new(models.DepthEventRaw)
 		if err := json.Unmarshal(event, depthEventRaw); err != nil {
 			fmt.Errorf("error json parsing %s", err.Error())
+			// TODO: better handling
 		}
 		depthEvent := depthEventRaw.Transform()
 		handler(depthEvent)
@@ -76,6 +78,6 @@ func (c *BinanceWsClient) serveDepth(url string, handler handlerEvent) (error, c
 }
 
 func (c *BinanceWsClient) SubscribeDepth(symbol string, handler handlerEvent) (error, chan<- struct{}) {
-	url := fmt.Sprintf("%s%s@depth", c.baseURL, symbol)
+	url := fmt.Sprintf("%s%s%s", c.baseURL, symbol, depth)
 	return c.serveDepth(url, handler)
 }

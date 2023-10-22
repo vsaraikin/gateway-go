@@ -2,21 +2,14 @@ package main
 
 import (
 	"fmt"
-	"gateaway/binance/models"
 	"gateaway/binance/ws"
+	"gateaway/binance/ws/models"
 	"os"
 	"os/signal"
 )
 
 func main() {
-	// Load config from ./config/.env
-	//apiKey, secretKey, err := config.LoadEnv()
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-
-	// for the example apiKey and secretKey are empty
+	// Endpoint does not require auth
 	client := ws.NewBinanceWsClient("", "")
 
 	interrupt := make(chan os.Signal, 1)
