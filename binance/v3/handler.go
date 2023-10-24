@@ -61,13 +61,13 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP request failed with status code: %d", response.StatusCode)
-	}
-
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP request failed with status code: %d\n%s", response.StatusCode, data)
 	}
 
 	return json.Unmarshal(data, target)
@@ -139,6 +139,26 @@ func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*model
 	// If you don't specify a type, the default is RESULT.
 	response := &models.OrderResponseFull{}
 	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) CancelOrder(r models.OrderCancelRequest) (*models.OrderCancelResponse, error) {
+	url := c.buildURL(newOrder)
+	return c.cancelOrder(url, r)
+}
+
+func (c *BinanceClient) cancelOrder(url string, params models.OrderCancelRequest) (*models.OrderCancelResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.OrderCancelResponse{}
+	err = c.executeRequest(http.MethodDelete, url, nil, response, true, params)
 	if err != nil {
 		return nil, err
 	}

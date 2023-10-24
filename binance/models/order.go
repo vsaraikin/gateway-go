@@ -2,8 +2,12 @@ package models
 
 import (
 	"errors"
+	"fmt"
+	"github.com/shopspring/decimal"
 	"strings"
 )
+
+// NEW ORDER
 
 type Side string
 
@@ -114,8 +118,8 @@ type OrderResponseResult struct {
 
 type OrderResponseFull struct {
 	Symbol                  string `json:"symbol"`
-	OrderId                 int    `json:"orderId"`
-	OrderListId             int    `json:"orderListId"`
+	OrderId                 int64  `json:"orderId"`
+	OrderListId             int64  `json:"orderListId"`
 	ClientOrderId           string `json:"clientOrderId"`
 	TransactTime            int64  `json:"transactTime"`
 	Price                   string `json:"price"`
@@ -135,4 +139,41 @@ type OrderResponseFull struct {
 		CommissionAsset string `json:"commissionAsset"`
 		TradeId         int    `json:"tradeId"`
 	} `json:"fills"`
+}
+
+// CANCEL ORDER
+
+type OrderCancelRequest struct {
+	Symbol            string `url:"symbol" binding:"required"`
+	OrderID           int64  `url:"orderId,omitempty"`
+	OrigClientOrderID string `url:"origClientOrderId,omitempty"`
+	NewClientOrderID  string `url:"newClientOrderId,omitempty"`
+	CancelRestriction string `url:"cancelRestrictions,omitempty"`
+	RecvWindow        int64  `url:"recvWindow,omitempty" binding:"omitempty,lt=60001"`
+	Timestamp         int64  `url:"timestamp" binding:"required"`
+}
+
+func (o *OrderCancelRequest) Validate() error {
+	if o.CancelRestriction != "ONLY_NEW" && o.CancelRestriction != "ONLY_PARTIALLY_FILLED" {
+		return fmt.Errorf("incorrect cancelrestriction value")
+	}
+	return nil
+}
+
+type OrderCancelResponse struct {
+	Symbol                  string          `json:"symbol"`
+	OrigClientOrderId       string          `json:"origClientOrderId"`
+	OrderId                 int64           `json:"orderId"`
+	OrderListId             int64           `json:"orderListId"`
+	ClientOrderId           string          `json:"clientOrderId"`
+	TransactTime            int64           `json:"transactTime"`
+	Price                   decimal.Decimal `json:"price"`
+	OrigQty                 string          `json:"origQty"`
+	ExecutedQty             string          `json:"executedQty"`
+	CummulativeQuoteQty     string          `json:"cummulativeQuoteQty"`
+	Status                  string          `json:"status"`
+	TimeInForce             string          `json:"timeInForce"`
+	Type                    string          `json:"type"`
+	Side                    string          `json:"side"`
+	SelfTradePreventionMode string          `json:"selfTradePreventionMode"`
 }
