@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"gateaway/binance/models"
+	//"github.com/charmbracelet/log"
+	"github.com/rs/zerolog/log"
+
 	"github.com/google/go-querystring/query"
 	"io"
 	"net/http"
@@ -49,7 +52,7 @@ func (c *BinanceClient) executeRequest(method, endpoint string, body io.Reader, 
 		return err
 	}
 
-	fmt.Println(u.String())
+	log.Info().Msg(fmt.Sprintf("Requested %s %s", method, u.String()))
 
 	if sign {
 		req.Header.Add("X-MBX-APIKEY", c.APIKey)
@@ -165,3 +168,25 @@ func (c *BinanceClient) cancelOrder(url string, params models.OrderCancelRequest
 
 	return response, nil
 }
+
+func (c *BinanceClient) cancelAllOpenOrders(url string, params models.CancelAllOrdersRequest) (*models.CancelAllOrdersResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.CancelAllOrdersResponse{}
+	err = c.executeRequest(http.MethodDelete, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) CancelAllOpenOrders(r models.CancelAllOrdersRequest) (*models.CancelAllOrdersResponse, error) {
+	url := c.buildURL(openOrders)
+	return c.cancelAllOpenOrders(url, r)
+}
+
+//func (c *BinanceClient) queryOrder(url string, params)

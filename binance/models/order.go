@@ -177,3 +177,66 @@ type OrderCancelResponse struct {
 	Side                    string          `json:"side"`
 	SelfTradePreventionMode string          `json:"selfTradePreventionMode"`
 }
+
+type CancelAllOrdersRequest struct {
+	Symbol     string `url:"symbol" binding:"required"`
+	RecvWindow int64  `url:"recvWindow,omitempty"`
+	Timestamp  int64  `url:"timestamp" binding:"required"`
+}
+
+func (r CancelAllOrdersRequest) Validate() error {
+	if r.Symbol == "" {
+		return fmt.Errorf("symbol cannot be empty")
+	}
+	if r.Timestamp == 0 {
+		return fmt.Errorf("timestamp cannot be empty")
+	}
+	return nil
+}
+
+type CancelAllOrdersResponse struct {
+	Symbol                  string `json:"symbol"`
+	OrigClientOrderId       string `json:"origClientOrderId,omitempty"`
+	OrderId                 int    `json:"orderId,omitempty"`
+	OrderListId             int    `json:"orderListId"`
+	ClientOrderId           string `json:"clientOrderId,omitempty"`
+	TransactTime            int64  `json:"transactTime,omitempty"`
+	Price                   string `json:"price,omitempty"`
+	OrigQty                 string `json:"origQty,omitempty"`
+	ExecutedQty             string `json:"executedQty,omitempty"`
+	CummulativeQuoteQty     string `json:"cummulativeQuoteQty,omitempty"`
+	Status                  string `json:"status,omitempty"`
+	TimeInForce             string `json:"timeInForce,omitempty"`
+	Type                    string `json:"type,omitempty"`
+	Side                    string `json:"side,omitempty"`
+	SelfTradePreventionMode string `json:"selfTradePreventionMode,omitempty"`
+	ContingencyType         string `json:"contingencyType,omitempty"`
+	ListStatusType          string `json:"listStatusType,omitempty"`
+	ListOrderStatus         string `json:"listOrderStatus,omitempty"`
+	ListClientOrderId       string `json:"listClientOrderId,omitempty"`
+	TransactionTime         int64  `json:"transactionTime,omitempty"`
+	Orders                  []struct {
+		Symbol        string `json:"symbol"`
+		OrderId       int    `json:"orderId"`
+		ClientOrderId string `json:"clientOrderId"`
+	} `json:"orders,omitempty"`
+	OrderReports []struct {
+		Symbol                  string `json:"symbol"`
+		OrigClientOrderId       string `json:"origClientOrderId"`
+		OrderId                 int    `json:"orderId"`
+		OrderListId             int    `json:"orderListId"`
+		ClientOrderId           string `json:"clientOrderId"`
+		TransactTime            int64  `json:"transactTime"`
+		Price                   string `json:"price"`
+		OrigQty                 string `json:"origQty"`
+		ExecutedQty             string `json:"executedQty"`
+		CummulativeQuoteQty     string `json:"cummulativeQuoteQty"`
+		Status                  string `json:"status"`
+		TimeInForce             string `json:"timeInForce"`
+		Type                    string `json:"type"`
+		Side                    string `json:"side"`
+		StopPrice               string `json:"stopPrice,omitempty"`
+		IcebergQty              string `json:"icebergQty"`
+		SelfTradePreventionMode string `json:"selfTradePreventionMode"`
+	} `json:"orderReports,omitempty"`
+}
