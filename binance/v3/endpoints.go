@@ -8,4 +8,5 @@ const (
 	// Account
 	testNewOrder = "/api/v3/order/test"
 	newOrder     = "/api/v3/order"
+	openOrders   = "/api/v3/openOrders"
 )
