@@ -240,3 +240,50 @@ type CancelAllOrdersResponse struct {
 		SelfTradePreventionMode string `json:"selfTradePreventionMode"`
 	} `json:"orderReports,omitempty"`
 }
+
+type GetOrderRequest struct {
+	Symbol            string `url:"symbol"`
+	OrderID           int64  `url:"orderId,omitempty"`
+	OrigClientOrderID string `url:"origClientOrderId,omitempty"`
+	RecvWindow        int64  `url:"recvWindow,omitempty"`
+	Timestamp         int64  `url:"timestamp"`
+}
+
+type GetOrderResponse struct {
+	Symbol                  string `json:"symbol"`
+	OrderId                 int    `json:"orderId"`
+	OrderListId             int    `json:"orderListId"`
+	ClientOrderId           string `json:"clientOrderId"`
+	Price                   string `json:"price"`
+	OrigQty                 string `json:"origQty"`
+	ExecutedQty             string `json:"executedQty"`
+	CummulativeQuoteQty     string `json:"cummulativeQuoteQty"`
+	Status                  string `json:"status"`
+	TimeInForce             string `json:"timeInForce"`
+	Type                    string `json:"type"`
+	Side                    string `json:"side"`
+	StopPrice               string `json:"stopPrice"`
+	IcebergQty              string `json:"icebergQty"`
+	Time                    int64  `json:"time"`
+	UpdateTime              int64  `json:"updateTime"`
+	IsWorking               bool   `json:"isWorking"`
+	WorkingTime             int64  `json:"workingTime"`
+	OrigQuoteOrderQty       string `json:"origQuoteOrderQty"`
+	SelfTradePreventionMode string `json:"selfTradePreventionMode"`
+}
+
+func (o *GetOrderRequest) Validate() error {
+	if o.Symbol == "" {
+		return errors.New("symbol is mandatory")
+	}
+
+	if o.Timestamp == 0 {
+		return errors.New("timestamp is mandatory")
+	}
+
+	if o.OrderID == 0 {
+		return fmt.Errorf("provide correct order id")
+	}
+
+	return nil
+}

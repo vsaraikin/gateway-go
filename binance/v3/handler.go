@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"gateaway/binance/models"
+
 	//"github.com/charmbracelet/log"
 	"github.com/rs/zerolog/log"
 
-	"github.com/google/go-querystring/query"
 	"io"
 	"net/http"
 	urlib "net/url"
+
+	"github.com/google/go-querystring/query"
 )
 
 type BinanceClient struct {
@@ -122,12 +124,12 @@ func (c *BinanceClient) GetDepth(r models.DepthRequest) (*models.DepthResponse, 
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.
 func (c *BinanceClient) NewOrderTest(r models.OrderRequest) (*models.OrderResponseFull, error) {
-	url := c.buildURL(testNewOrder)
+	url := c.buildURL(testOrder)
 	return c.newOrder(url, r)
 }
 
 func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseFull, error) {
-	url := c.buildURL(newOrder)
+	url := c.buildURL(order)
 	return c.newOrder(url, r)
 }
 
@@ -150,7 +152,7 @@ func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*model
 }
 
 func (c *BinanceClient) CancelOrder(r models.OrderCancelRequest) (*models.OrderCancelResponse, error) {
-	url := c.buildURL(newOrder)
+	url := c.buildURL(order)
 	return c.cancelOrder(url, r)
 }
 
@@ -189,4 +191,22 @@ func (c *BinanceClient) CancelAllOpenOrders(r models.CancelAllOrdersRequest) (*m
 	return c.cancelAllOpenOrders(url, r)
 }
 
-//func (c *BinanceClient) queryOrder(url string, params)
+func (c *BinanceClient) getOrder(url string, params models.GetOrderRequest) (*models.GetOrderResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.GetOrderResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetOrder(r models.GetOrderRequest) (*models.GetOrderResponse, error) {
+	url := c.buildURL(order)
+	return c.getOrder(url, r)
+}
