@@ -464,8 +464,8 @@ type OpenOrdersRequest struct {
 	Timestamp  int64  `url:"timestamp"`
 }
 
-func (p *OpenOrdersRequest) Validate() error {
-	if p.Timestamp <= 0 {
+func (o *OpenOrdersRequest) Validate() error {
+	if o.Timestamp <= 0 {
 		return errors.New("timestamp is required and must be a positive integer")
 	}
 	return nil
@@ -491,5 +491,46 @@ type OpenOrdersResponse struct {
 	IsWorking               bool   `json:"isWorking"`
 	WorkingTime             int64  `json:"workingTime"`
 	OrigQuoteOrderQty       string `json:"origQuoteOrderQty"`
+	SelfTradePreventionMode string `json:"selfTradePreventionMode"`
+}
+
+type AllOpenOrdersRequest struct {
+	Symbol     string `url:"symbol"`
+	OrderID    *int64 `url:"orderId,omitempty"`
+	StartTime  *int64 `url:"startTime,omitempty"`
+	EndTime    *int64 `url:"endTime,omitempty"`
+	Limit      *int   `url:"limit,omitempty"`
+	RecvWindow *int64 `url:"recvWindow,omitempty"`
+	Timestamp  int64  `url:"timestamp"`
+}
+
+func (o *AllOpenOrdersRequest) Validate() error {
+	if o.Symbol == "" {
+		return errors.New("symbol is required and cannot be empty")
+	}
+
+	return nil
+}
+
+type AllOpenOrdersResponse struct {
+	Symbol                  string `json:"symbol"`
+	OrderId                 int    `json:"orderId"`
+	OrderListId             int    `json:"orderListId"`
+	ClientOrderId           string `json:"clientOrderId"`
+	Price                   string `json:"price"`
+	OrigQty                 string `json:"origQty"`
+	ExecutedQty             string `json:"executedQty"`
+	CummulativeQuoteQty     string `json:"cummulativeQuoteQty"`
+	Status                  string `json:"status"`
+	TimeInForce             string `json:"timeInForce"`
+	Type                    string `json:"type"`
+	Side                    string `json:"side"`
+	StopPrice               string `json:"stopPrice"`
+	IcebergQty              string `json:"icebergQty"`
+	Time                    int64  `json:"time"`
+	UpdateTime              int64  `json:"updateTime"`
+	IsWorking               bool   `json:"isWorking"`
+	OrigQuoteOrderQty       string `json:"origQuoteOrderQty"`
+	WorkingTime             int64  `json:"workingTime"`
 	SelfTradePreventionMode string `json:"selfTradePreventionMode"`
 }

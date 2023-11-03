@@ -10,4 +10,5 @@ const (
 	order         = "/api/v3/order"
 	openOrders    = "/api/v3/openOrders"
 	cancelReplace = "/api/v3/order/cancelReplace"
+	allOrders     = "/api/v3/allOrders"
 )

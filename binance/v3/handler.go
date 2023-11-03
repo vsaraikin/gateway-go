@@ -250,3 +250,23 @@ func (c *BinanceClient) GetOpenOrders(r models.OpenOrdersRequest) (*[]models.Ope
 	url := c.buildURL(openOrders)
 	return c.getOpenOrders(url, r)
 }
+
+func (c *BinanceClient) getAllOrders(url string, params models.AllOpenOrdersRequest) (*[]models.AllOpenOrdersResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.AllOpenOrdersResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetAllOrders(r models.AllOpenOrdersRequest) (*[]models.AllOpenOrdersResponse, error) {
+	url := c.buildURL(openOrders)
+	return c.getAllOrders(url, r)
+}
