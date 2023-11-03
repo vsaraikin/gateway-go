@@ -390,3 +390,8 @@ func (c *BinanceClient) NewSOR(r models.NewSORRequest) (*[]models.NewSORResponse
 	url := c.buildURL(newSOR)
 	return c.newSOR(url, r)
 }
+
+func (c *BinanceClient) TestNewSOR(r models.NewSORRequest) (*[]models.NewSORResponse, error) {
+	url := c.buildURL(newSOR)
+	return c.newSOR(url, r)
+}
