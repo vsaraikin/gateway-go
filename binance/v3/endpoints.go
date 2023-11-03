@@ -13,4 +13,5 @@ const (
 	allOrders     = "/api/v3/allOrders"
 	oco           = "/api/v3/order/oco"
 	orderList     = "/api/v3/orderList"
+	allOrderList  = "/api/v3/allOrderList"
 )

@@ -745,3 +745,35 @@ type GetOCOResponse struct {
 		ClientOrderId string `json:"clientOrderId"`
 	} `json:"orders"`
 }
+
+type AllOCOListRequest struct {
+	FromID     *int64 `url:"fromId,omitempty"`
+	StartTime  *int64 `url:"startTime,omitempty"`
+	EndTime    *int64 `url:"endTime,omitempty"`
+	Limit      *int   `url:"limit,omitempty"`
+	RecvWindow *int64 `url:"recvWindow,omitempty"`
+	Timestamp  int64  `url:"timestamp"`
+}
+
+func (r *AllOCOListRequest) Validate() error {
+	if r.FromID != nil && (r.StartTime != nil || r.EndTime != nil) {
+		return errors.New("if fromId is supplied, neither startTime nor endTime can be provided")
+	}
+
+	return nil
+}
+
+type AllOCOListResponse struct {
+	OrderListId       int    `json:"orderListId"`
+	ContingencyType   string `json:"contingencyType"`
+	ListStatusType    string `json:"listStatusType"`
+	ListOrderStatus   string `json:"listOrderStatus"`
+	ListClientOrderId string `json:"listClientOrderId"`
+	TransactionTime   int64  `json:"transactionTime"`
+	Symbol            string `json:"symbol"`
+	Orders            []struct {
+		Symbol        string `json:"symbol"`
+		OrderId       int    `json:"orderId"`
+		ClientOrderId string `json:"clientOrderId"`
+	} `json:"orders"`
+}

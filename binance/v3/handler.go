@@ -330,3 +330,23 @@ func (c *BinanceClient) GetOCO(r models.GetOCORequest) (*models.GetOCOResponse, 
 	url := c.buildURL(orderList)
 	return c.getOCO(url, r)
 }
+
+func (c *BinanceClient) allOCOList(url string, params models.AllOCOListRequest) (*[]models.AllOCOListResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.AllOCOListResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) AllOCOList(r models.AllOCOListRequest) (*[]models.AllOCOListResponse, error) {
+	url := c.buildURL(allOrderList)
+	return c.allOCOList(url, r)
+}
