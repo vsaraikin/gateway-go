@@ -3,9 +3,8 @@ package models
 import (
 	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/shopspring/decimal"
+	"strings"
 )
 
 // NEW ORDER
@@ -457,4 +456,40 @@ type CancelReplaceResponse struct {
 			SelfTradePreventionMode string   `json:"selfTradePreventionMode,omitempty"`
 		} `json:"newOrderResponse"`
 	} `json:"data,omitempty"`
+}
+
+type OpenOrdersRequest struct {
+	Symbol     string `url:"symbol,omitempty"`
+	RecvWindow *int64 `url:"recvWindow,omitempty"`
+	Timestamp  int64  `url:"timestamp"`
+}
+
+func (p *OpenOrdersRequest) Validate() error {
+	if p.Timestamp <= 0 {
+		return errors.New("timestamp is required and must be a positive integer")
+	}
+	return nil
+}
+
+type OpenOrdersResponse struct {
+	Symbol                  string `json:"symbol"`
+	OrderId                 int    `json:"orderId"`
+	OrderListId             int    `json:"orderListId"`
+	ClientOrderId           string `json:"clientOrderId"`
+	Price                   string `json:"price"`
+	OrigQty                 string `json:"origQty"`
+	ExecutedQty             string `json:"executedQty"`
+	CummulativeQuoteQty     string `json:"cummulativeQuoteQty"`
+	Status                  string `json:"status"`
+	TimeInForce             string `json:"timeInForce"`
+	Type                    string `json:"type"`
+	Side                    string `json:"side"`
+	StopPrice               string `json:"stopPrice"`
+	IcebergQty              string `json:"icebergQty"`
+	Time                    int64  `json:"time"`
+	UpdateTime              int64  `json:"updateTime"`
+	IsWorking               bool   `json:"isWorking"`
+	WorkingTime             int64  `json:"workingTime"`
+	OrigQuoteOrderQty       string `json:"origQuoteOrderQty"`
+	SelfTradePreventionMode string `json:"selfTradePreventionMode"`
 }
