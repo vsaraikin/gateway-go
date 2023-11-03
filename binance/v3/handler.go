@@ -370,3 +370,23 @@ func (c *BinanceClient) QueryOCOList(r models.QueryOpenOCORequest) (*[]models.Qu
 	url := c.buildURL(openOrderList)
 	return c.queryOCOList(url, r)
 }
+
+func (c *BinanceClient) newSOR(url string, params models.NewSORRequest) (*[]models.NewSORResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.NewSORResponse{}
+	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) NewSOR(r models.NewSORRequest) (*[]models.NewSORResponse, error) {
+	url := c.buildURL(newSOR)
+	return c.newSOR(url, r)
+}

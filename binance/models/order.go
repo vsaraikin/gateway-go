@@ -804,3 +804,78 @@ type QueryOpenOCOResponse struct {
 		ClientOrderId string `json:"clientOrderId"`
 	} `json:"orders"`
 }
+
+type NewSORRequest struct {
+	Symbol                  string    `url:"symbol"`
+	Side                    string    `url:"side"`
+	Type                    OrderType `url:"type"`
+	TimeInForce             string    `url:"timeInForce,omitempty"`
+	Quantity                float64   `url:"quantity"`
+	Price                   float64   `url:"price,omitempty"`
+	NewClientOrderId        string    `url:"newClientOrderId,omitempty"`
+	StrategyId              int       `url:"strategyId,omitempty"`
+	StrategyType            int       `url:"strategyType,omitempty"`
+	IcebergQty              float64   `url:"icebergQty,omitempty"`
+	NewOrderRespType        string    `url:"newOrderRespType,omitempty"`
+	SelfTradePreventionMode string    `url:"selfTradePreventionMode,omitempty"`
+	RecvWindow              int64     `url:"recvWindow,omitempty"`
+	Timestamp               int64     `url:"timestamp"`
+}
+
+// Validate checks the fields of Order for validity.
+func (o *NewSORRequest) Validate() error {
+	if o.Symbol == "" {
+		return errors.New("symbol is required")
+	}
+
+	if o.Quantity <= 0 {
+		return errors.New("quantity must be greater than 0")
+	}
+
+	if o.Type == "LIMIT" && (o.Price <= 0) {
+		return errors.New("price must be set and greater than 0 for LIMIT order type")
+	}
+
+	if o.StrategyType != 0 && o.StrategyType < 1000000 {
+		return errors.New("strategyType cannot be less than 1000000")
+	}
+
+	if o.RecvWindow != 0 && o.RecvWindow > 60000 {
+		return errors.New("recvWindow cannot be greater than 60000")
+	}
+
+	if o.Timestamp <= 0 {
+		return errors.New("timestamp must be a positive integer and is required")
+	}
+
+	return nil
+}
+
+type NewSORResponse struct {
+	Symbol              string `json:"symbol"`
+	OrderId             int    `json:"orderId"`
+	OrderListId         int    `json:"orderListId"`
+	ClientOrderId       string `json:"clientOrderId"`
+	TransactTime        int64  `json:"transactTime"`
+	Price               string `json:"price"`
+	OrigQty             string `json:"origQty"`
+	ExecutedQty         string `json:"executedQty"`
+	CummulativeQuoteQty string `json:"cummulativeQuoteQty"`
+	Status              string `json:"status"`
+	TimeInForce         string `json:"timeInForce"`
+	Type                string `json:"type"`
+	Side                string `json:"side"`
+	WorkingTime         int64  `json:"workingTime"`
+	Fills               []struct {
+		MatchType       string `json:"matchType"`
+		Price           string `json:"price"`
+		Qty             string `json:"qty"`
+		Commission      string `json:"commission"`
+		CommissionAsset string `json:"commissionAsset"`
+		TradeId         int    `json:"tradeId"`
+		AllocId         int    `json:"allocId"`
+	} `json:"fills"`
+	WorkingFloor            string `json:"workingFloor"`
+	SelfTradePreventionMode string `json:"selfTradePreventionMode"`
+	UsedSor                 bool   `json:"usedSor"`
+}

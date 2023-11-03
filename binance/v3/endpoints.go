@@ -15,4 +15,5 @@ const (
 	orderList     = "/api/v3/orderList"
 	allOrderList  = "/api/v3/allOrderList"
 	openOrderList = "/api/v3/openOrderList"
+	newSOR        = "/api/v3/sor/order"
 )
