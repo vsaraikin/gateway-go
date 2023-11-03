@@ -534,3 +534,114 @@ type AllOpenOrdersResponse struct {
 	WorkingTime             int64  `json:"workingTime"`
 	SelfTradePreventionMode string `json:"selfTradePreventionMode"`
 }
+
+type OCORequest struct {
+	Symbol                  string   `url:"symbol"`
+	ListClientOrderId       *string  `url:"listClientOrderId,omitempty"`
+	Side                    Side     `url:"side"`
+	Quantity                float64  `url:"quantity"`
+	LimitClientOrderId      *string  `url:"limitClientOrderId,omitempty"`
+	LimitStrategyId         *int     `url:"limitStrategyId,omitempty"`
+	LimitStrategyType       *int     `url:"limitStrategyType,omitempty"`
+	Price                   float64  `url:"price"`
+	LimitIcebergQty         *float64 `url:"limitIcebergQty,omitempty"`
+	TrailingDelta           *int64   `url:"trailingDelta,omitempty"`
+	StopClientOrderId       *string  `url:"stopClientOrderId,omitempty"`
+	StopPrice               float64  `url:"stopPrice"`
+	StopStrategyId          *int     `url:"stopStrategyId,omitempty"`
+	StopStrategyType        *int     `url:"stopStrategyType,omitempty"`
+	StopLimitPrice          *float64 `url:"stopLimitPrice,omitempty"`
+	StopIcebergQty          *float64 `url:"stopIcebergQty,omitempty"`
+	StopLimitTimeInForce    string   `url:"stopLimitTimeInForce,omitempty"`
+	NewOrderRespType        string   `url:"newOrderRespType,omitempty"`
+	SelfTradePreventionMode string   `url:"selfTradePreventionMode,omitempty"`
+	RecvWindow              *int64   `url:"recvWindow,omitempty"`
+	Timestamp               int64    `url:"timestamp"`
+}
+
+func (r *OCORequest) Validate() error {
+	if r.Symbol == "" {
+		return errors.New("symbol is required and cannot be empty")
+	}
+
+	if r.Side != "BUY" && r.Side != "SELL" {
+		return errors.New("side is required and must be either BUY or SELL")
+	}
+
+	if r.Quantity <= 0 {
+		return errors.New("quantity is required and must be greater than 0")
+	}
+
+	if r.Price <= 0 {
+		return errors.New("price is required and must be greater than 0")
+	}
+
+	if r.StopPrice <= 0 {
+		return errors.New("stopPrice is required and must be greater than 0")
+	}
+
+	if r.LimitStrategyType != nil && *r.LimitStrategyType < 1000000 {
+		return errors.New("limitStrategyType cannot be less than 1000000")
+	}
+
+	if r.StopStrategyType != nil && *r.StopStrategyType < 1000000 {
+		return errors.New("stopStrategyType cannot be less than 1000000")
+	}
+
+	if r.RecvWindow != nil && *r.RecvWindow > 60000 {
+		return errors.New("recvWindow cannot be greater than 60000")
+	}
+
+	if r.Timestamp <= 0 {
+		return errors.New("timestamp is required and must be a positive integer")
+	}
+
+	// Price and quantity restrictions based on side
+	if r.Side == "SELL" && (r.Price <= r.StopPrice) {
+		return errors.New("for a SELL order, limit price must be greater than the stop price")
+	}
+
+	if r.Side == "BUY" && (r.Price >= r.StopPrice) {
+		return errors.New("for a BUY order, limit price must be less than the stop price")
+	}
+
+	// If stopLimitPrice is provided, stopLimitTimeInForce must also be provided
+	if r.StopLimitPrice != nil && r.StopLimitTimeInForce == "" {
+		return errors.New("if stopLimitPrice is provided, stopLimitTimeInForce is required")
+	}
+
+	return nil
+}
+
+type OCOResponse struct {
+	OrderListId       int    `json:"orderListId"`
+	ContingencyType   string `json:"contingencyType"`
+	ListStatusType    string `json:"listStatusType"`
+	ListOrderStatus   string `json:"listOrderStatus"`
+	ListClientOrderId string `json:"listClientOrderId"`
+	TransactionTime   int64  `json:"transactionTime"`
+	Symbol            string `json:"symbol"`
+	Orders            []struct {
+		Symbol        string `json:"symbol"`
+		OrderId       int    `json:"orderId"`
+		ClientOrderId string `json:"clientOrderId"`
+	} `json:"orders"`
+	OrderReports []struct {
+		Symbol                  string `json:"symbol"`
+		OrderId                 int    `json:"orderId"`
+		OrderListId             int    `json:"orderListId"`
+		ClientOrderId           string `json:"clientOrderId"`
+		TransactTime            int64  `json:"transactTime"`
+		Price                   string `json:"price"`
+		OrigQty                 string `json:"origQty"`
+		ExecutedQty             string `json:"executedQty"`
+		CummulativeQuoteQty     string `json:"cummulativeQuoteQty"`
+		Status                  string `json:"status"`
+		TimeInForce             string `json:"timeInForce"`
+		Type                    string `json:"type"`
+		Side                    string `json:"side"`
+		StopPrice               string `json:"stopPrice,omitempty"`
+		WorkingTime             int64  `json:"workingTime"`
+		SelfTradePreventionMode string `json:"selfTradePreventionMode"`
+	} `json:"orderReports"`
+}

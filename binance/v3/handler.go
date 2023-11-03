@@ -267,6 +267,26 @@ func (c *BinanceClient) getAllOrders(url string, params models.AllOpenOrdersRequ
 }
 
 func (c *BinanceClient) GetAllOrders(r models.AllOpenOrdersRequest) (*[]models.AllOpenOrdersResponse, error) {
-	url := c.buildURL(openOrders)
+	url := c.buildURL(allOrders)
 	return c.getAllOrders(url, r)
+}
+
+func (c *BinanceClient) newOCO(url string, params models.OCORequest) (*models.OCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.OCOResponse{}
+	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) NewOCO(r models.OCORequest) (*models.OCOResponse, error) {
+	url := c.buildURL(oco)
+	return c.newOCO(url, r)
 }

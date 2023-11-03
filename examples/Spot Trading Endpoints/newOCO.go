@@ -18,10 +18,17 @@ func main() {
 
 	client := v3.NewBinanceClient(apiKey, secretKey)
 
-	// Get All Orders
-	cancelReplace, err := client.GetAllOrders(models.AllOpenOrdersRequest{
-		Symbol:    "SOLUSDT",
-		Timestamp: time.Now().UnixMilli(),
+	// New OCO
+	stopLimit := 22.5
+	cancelReplace, err := client.NewOCO(models.OCORequest{
+		Symbol:               "SOLUSDT",
+		Side:                 "BUY",
+		Price:                20,
+		Quantity:             1,
+		StopPrice:            40,
+		Timestamp:            time.Now().UnixMilli(),
+		StopLimitPrice:       &stopLimit,
+		StopLimitTimeInForce: "GTC",
 	})
 
 	if err != nil {
