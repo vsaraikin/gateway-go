@@ -777,3 +777,30 @@ type AllOCOListResponse struct {
 		ClientOrderId string `json:"clientOrderId"`
 	} `json:"orders"`
 }
+
+type QueryOpenOCORequest struct {
+	RecvWindow *int64 `url:"recvWindow,omitempty"`
+	Timestamp  int64  `url:"timestamp"`
+}
+
+func (r QueryOpenOCORequest) Validate() error {
+	if r.Timestamp <= 0 {
+		return errors.New("timestamp must be a positive integer and is required")
+	}
+	return nil
+}
+
+type QueryOpenOCOResponse struct {
+	OrderListId       int    `json:"orderListId"`
+	ContingencyType   string `json:"contingencyType"`
+	ListStatusType    string `json:"listStatusType"`
+	ListOrderStatus   string `json:"listOrderStatus"`
+	ListClientOrderId string `json:"listClientOrderId"`
+	TransactionTime   int64  `json:"transactionTime"`
+	Symbol            string `json:"symbol"`
+	Orders            []struct {
+		Symbol        string `json:"symbol"`
+		OrderId       int    `json:"orderId"`
+		ClientOrderId string `json:"clientOrderId"`
+	} `json:"orders"`
+}

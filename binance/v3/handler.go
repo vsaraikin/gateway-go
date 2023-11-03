@@ -350,3 +350,23 @@ func (c *BinanceClient) AllOCOList(r models.AllOCOListRequest) (*[]models.AllOCO
 	url := c.buildURL(allOrderList)
 	return c.allOCOList(url, r)
 }
+
+func (c *BinanceClient) queryOCOList(url string, params models.QueryOpenOCORequest) (*[]models.QueryOpenOCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.QueryOpenOCOResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) QueryOCOList(r models.QueryOpenOCORequest) (*[]models.QueryOpenOCOResponse, error) {
+	url := c.buildURL(openOrderList)
+	return c.queryOCOList(url, r)
+}
