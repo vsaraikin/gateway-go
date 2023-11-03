@@ -4,6 +4,7 @@ const (
 	// Market Data
 	exchangeInfo = "/api/v3/exchangeInfo"
 	depth        = "/api/v3/depth"
+	trades       = "/api/v3/trades"
 
 	// Account
 	testOrder     = "/api/v3/order/test"

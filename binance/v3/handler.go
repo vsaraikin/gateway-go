@@ -118,6 +118,26 @@ func (c *BinanceClient) GetDepth(r models.DepthRequest) (*models.DepthResponse, 
 	return c.getDepth(url, r)
 }
 
+func (c *BinanceClient) getTrades(url string, params models.TradesRequest) (*[]models.TradesResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.TradesResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, false, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetTrades(r models.TradesRequest) (*[]models.TradesResponse, error) {
+	url := c.buildURL(trades)
+	return c.getTrades(url, r)
+}
+
 // ––––––––––– SPOT TRADING –––––––––––
 
 // NewOrderTest
@@ -392,6 +412,6 @@ func (c *BinanceClient) NewSOR(r models.NewSORRequest) (*[]models.NewSORResponse
 }
 
 func (c *BinanceClient) TestNewSOR(r models.NewSORRequest) (*[]models.NewSORResponse, error) {
-	url := c.buildURL(newSOR)
+	url := c.buildURL(testNewSOR)
 	return c.newSOR(url, r)
 }
