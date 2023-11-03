@@ -35,10 +35,8 @@ func (c *BinanceWsClient) subscribe(url string, handler func(message []byte) err
 
 	go func() {
 		// Wait to close connection in a separate goroutine while getting updates from WS
-		go func() {
-			<-done
-			defer conn.Close()
-		}()
+		defer close(done)  // Ensure done channel gets closed
+		defer conn.Close() // Ensure connection gets closed
 
 		for {
 			_, message, err := conn.ReadMessage()
@@ -49,11 +47,6 @@ func (c *BinanceWsClient) subscribe(url string, handler func(message []byte) err
 			if err := handler(message); err != nil {
 				log.Println("WebSocket handler error:", err)
 				return
-			}
-			err = handler(message)
-			if err != nil {
-				fmt.Errorf(err.Error())
-				// TODO: better handling
 			}
 		}
 	}()
@@ -67,8 +60,8 @@ func (c *BinanceWsClient) serveDepth(url string, handler handlerEvent) (error, c
 	wsHandler := func(event []byte) error {
 		depthEventRaw := new(models.DepthEventRaw)
 		if err := json.Unmarshal(event, depthEventRaw); err != nil {
-			fmt.Errorf("error json parsing %s", err.Error())
-			// TODO: better handling
+			log.Println("Error during JSON parsing:", err)
+			return err
 		}
 		depthEvent := depthEventRaw.Transform()
 		handler(depthEvent)
