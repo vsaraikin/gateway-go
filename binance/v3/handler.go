@@ -310,3 +310,23 @@ func (c *BinanceClient) CancelOCO(r models.CancelOCORequest) (*models.CancelOCOR
 	url := c.buildURL(orderList)
 	return c.cancelOCO(url, r)
 }
+
+func (c *BinanceClient) getOCO(url string, params models.GetOCORequest) (*models.GetOCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.GetOCOResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetOCO(r models.GetOCORequest) (*models.GetOCOResponse, error) {
+	url := c.buildURL(orderList)
+	return c.getOCO(url, r)
+}

@@ -707,3 +707,41 @@ type CancelOCOResponse struct {
 		SelfTradePreventionMode string `json:"selfTradePreventionMode"`
 	} `json:"orderReports"`
 }
+
+type GetOCORequest struct {
+	OrderListID       *int    `url:"orderListId,omitempty"`
+	OrigClientOrderID *string `url:"origClientOrderId,omitempty"`
+	RecvWindow        *int    `url:"recvWindow,omitempty"`
+	Timestamp         int64   `url:"timestamp"`
+}
+
+func (p *GetOCORequest) Validate() error {
+	if (p.OrderListID == nil) == (p.OrigClientOrderID == nil) {
+		return errors.New("either orderListId or origClientOrderId must be provided, but not both")
+	}
+
+	if p.RecvWindow != nil && *p.RecvWindow > 60000 {
+		return errors.New("recvWindow cannot be greater than 60000")
+	}
+
+	if p.Timestamp <= 0 {
+		return errors.New("timestamp must be a positive integer and is required")
+	}
+
+	return nil
+}
+
+type GetOCOResponse struct {
+	OrderListId       int    `json:"orderListId"`
+	ContingencyType   string `json:"contingencyType"`
+	ListStatusType    string `json:"listStatusType"`
+	ListOrderStatus   string `json:"listOrderStatus"`
+	ListClientOrderId string `json:"listClientOrderId"`
+	TransactionTime   int64  `json:"transactionTime"`
+	Symbol            string `json:"symbol"`
+	Orders            []struct {
+		Symbol        string `json:"symbol"`
+		OrderId       int    `json:"orderId"`
+		ClientOrderId string `json:"clientOrderId"`
+	} `json:"orders"`
+}
