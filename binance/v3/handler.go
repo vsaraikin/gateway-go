@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"gateaway/binance/models"
+
 	//"github.com/charmbracelet/log"
 	"github.com/rs/zerolog/log"
 
-	"github.com/google/go-querystring/query"
 	"io"
 	"net/http"
 	urlib "net/url"
+
+	"github.com/google/go-querystring/query"
 )
 
 type BinanceClient struct {
@@ -116,18 +118,38 @@ func (c *BinanceClient) GetDepth(r models.DepthRequest) (*models.DepthResponse, 
 	return c.getDepth(url, r)
 }
 
+func (c *BinanceClient) getTrades(url string, params models.TradesRequest) (*[]models.TradesResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.TradesResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, false, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetTrades(r models.TradesRequest) (*[]models.TradesResponse, error) {
+	url := c.buildURL(trades)
+	return c.getTrades(url, r)
+}
+
 // ––––––––––– SPOT TRADING –––––––––––
 
 // NewOrderTest
 // Test new order creation and signature/recvWindow long.
 // Creates and validates a new order but does not send it into the matching engine.
 func (c *BinanceClient) NewOrderTest(r models.OrderRequest) (*models.OrderResponseFull, error) {
-	url := c.buildURL(testNewOrder)
+	url := c.buildURL(testOrder)
 	return c.newOrder(url, r)
 }
 
 func (c *BinanceClient) NewOrder(r models.OrderRequest) (*models.OrderResponseFull, error) {
-	url := c.buildURL(newOrder)
+	url := c.buildURL(order)
 	return c.newOrder(url, r)
 }
 
@@ -150,7 +172,7 @@ func (c *BinanceClient) newOrder(url string, params models.OrderRequest) (*model
 }
 
 func (c *BinanceClient) CancelOrder(r models.OrderCancelRequest) (*models.OrderCancelResponse, error) {
-	url := c.buildURL(newOrder)
+	url := c.buildURL(order)
 	return c.cancelOrder(url, r)
 }
 
@@ -189,4 +211,207 @@ func (c *BinanceClient) CancelAllOpenOrders(r models.CancelAllOrdersRequest) (*m
 	return c.cancelAllOpenOrders(url, r)
 }
 
-//func (c *BinanceClient) queryOrder(url string, params)
+func (c *BinanceClient) getOrder(url string, params models.GetOrderRequest) (*models.GetOrderResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.GetOrderResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetOrder(r models.GetOrderRequest) (*models.GetOrderResponse, error) {
+	url := c.buildURL(order)
+	return c.getOrder(url, r)
+}
+
+func (c *BinanceClient) cancelReplace(url string, params models.CancelReplaceRequest) (*models.CancelReplaceResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.CancelReplaceResponse{}
+	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) CancelReplace(r models.CancelReplaceRequest) (*models.CancelReplaceResponse, error) {
+	url := c.buildURL(cancelReplace)
+	return c.cancelReplace(url, r)
+}
+
+func (c *BinanceClient) getOpenOrders(url string, params models.OpenOrdersRequest) (*[]models.OpenOrdersResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.OpenOrdersResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetOpenOrders(r models.OpenOrdersRequest) (*[]models.OpenOrdersResponse, error) {
+	url := c.buildURL(openOrders)
+	return c.getOpenOrders(url, r)
+}
+
+func (c *BinanceClient) getAllOrders(url string, params models.AllOpenOrdersRequest) (*[]models.AllOpenOrdersResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.AllOpenOrdersResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetAllOrders(r models.AllOpenOrdersRequest) (*[]models.AllOpenOrdersResponse, error) {
+	url := c.buildURL(allOrders)
+	return c.getAllOrders(url, r)
+}
+
+func (c *BinanceClient) newOCO(url string, params models.NewOCORequest) (*models.NewOCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.NewOCOResponse{}
+	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) NewOCO(r models.NewOCORequest) (*models.NewOCOResponse, error) {
+	url := c.buildURL(oco)
+	return c.newOCO(url, r)
+}
+
+func (c *BinanceClient) cancelOCO(url string, params models.CancelOCORequest) (*models.CancelOCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.CancelOCOResponse{}
+	err = c.executeRequest(http.MethodDelete, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) CancelOCO(r models.CancelOCORequest) (*models.CancelOCOResponse, error) {
+	url := c.buildURL(orderList)
+	return c.cancelOCO(url, r)
+}
+
+func (c *BinanceClient) getOCO(url string, params models.GetOCORequest) (*models.GetOCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.GetOCOResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) GetOCO(r models.GetOCORequest) (*models.GetOCOResponse, error) {
+	url := c.buildURL(orderList)
+	return c.getOCO(url, r)
+}
+
+func (c *BinanceClient) allOCOList(url string, params models.AllOCOListRequest) (*[]models.AllOCOListResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.AllOCOListResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) AllOCOList(r models.AllOCOListRequest) (*[]models.AllOCOListResponse, error) {
+	url := c.buildURL(allOrderList)
+	return c.allOCOList(url, r)
+}
+
+func (c *BinanceClient) queryOCOList(url string, params models.QueryOpenOCORequest) (*[]models.QueryOpenOCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.QueryOpenOCOResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) QueryOCOList(r models.QueryOpenOCORequest) (*[]models.QueryOpenOCOResponse, error) {
+	url := c.buildURL(openOrderList)
+	return c.queryOCOList(url, r)
+}
+
+func (c *BinanceClient) newSOR(url string, params models.NewSORRequest) (*[]models.NewSORResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.NewSORResponse{}
+	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) NewSOR(r models.NewSORRequest) (*[]models.NewSORResponse, error) {
+	url := c.buildURL(newSOR)
+	return c.newSOR(url, r)
+}
+
+func (c *BinanceClient) TestNewSOR(r models.NewSORRequest) (*[]models.NewSORResponse, error) {
+	url := c.buildURL(testNewSOR)
+	return c.newSOR(url, r)
+}

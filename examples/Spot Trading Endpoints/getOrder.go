@@ -37,16 +37,15 @@ func main() {
 
 	time.Sleep(10 * time.Second)
 
-	// Cancel order
-	canceledOrder, err := client.CancelOrder(models.OrderCancelRequest{
-		Symbol:            "SOLUSDT",
-		OrderID:           order.OrderId,
-		Timestamp:         time.Now().UnixMilli(),
-		CancelRestriction: "ONLY_NEW",
+	// Get order
+	orderInfo, err := client.GetOrder(models.GetOrderRequest{
+		Symbol:    "SOLUSDT",
+		OrderID:   order.OrderId,
+		Timestamp: time.Now().UnixMilli(),
 	})
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(canceledOrder)
+	fmt.Println(orderInfo)
 }
