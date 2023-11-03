@@ -1,0 +1,12 @@
+run:
+  skip-dirs:
+    - examples
+    - binance/ws
+
+linters:
+  enable:
+    - errcheck
+    - staticcheck
+    - govet
+    - unused
+    - gosimple
