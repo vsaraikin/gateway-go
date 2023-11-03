@@ -20,7 +20,7 @@ func main() {
 
 	// New OCO
 	stopLimit := 22.5
-	cancelReplace, err := client.NewOCO(models.NewOCORequest{
+	newOCO, err := client.NewOCO(models.NewOCORequest{
 		Symbol:               "SOLUSDT",
 		Side:                 "BUY",
 		Price:                20,
@@ -34,5 +34,20 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(cancelReplace)
+
+	fmt.Println(newOCO)
+	time.Sleep(2 * time.Second)
+
+	// Cancel OCO
+	canceledOrderList, err := client.CancelOCO(models.CancelOCORequest{
+		Symbol:      "SOLUSDT",
+		Timestamp:   time.Now().UnixMilli(),
+		OrderListID: &newOCO.OrderListId,
+	})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(canceledOrderList)
+
 }

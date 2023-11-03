@@ -271,13 +271,13 @@ func (c *BinanceClient) GetAllOrders(r models.AllOpenOrdersRequest) (*[]models.A
 	return c.getAllOrders(url, r)
 }
 
-func (c *BinanceClient) newOCO(url string, params models.OCORequest) (*models.OCOResponse, error) {
+func (c *BinanceClient) newOCO(url string, params models.NewOCORequest) (*models.NewOCOResponse, error) {
 	err := params.Validate()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &models.OCOResponse{}
+	response := &models.NewOCOResponse{}
 	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
 	if err != nil {
 		return nil, err
@@ -286,7 +286,27 @@ func (c *BinanceClient) newOCO(url string, params models.OCORequest) (*models.OC
 	return response, nil
 }
 
-func (c *BinanceClient) NewOCO(r models.OCORequest) (*models.OCOResponse, error) {
+func (c *BinanceClient) NewOCO(r models.NewOCORequest) (*models.NewOCOResponse, error) {
 	url := c.buildURL(oco)
 	return c.newOCO(url, r)
+}
+
+func (c *BinanceClient) cancelOCO(url string, params models.CancelOCORequest) (*models.CancelOCOResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.CancelOCOResponse{}
+	err = c.executeRequest(http.MethodDelete, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) CancelOCO(r models.CancelOCORequest) (*models.CancelOCOResponse, error) {
+	url := c.buildURL(orderList)
+	return c.cancelOCO(url, r)
 }
