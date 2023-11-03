@@ -210,3 +210,23 @@ func (c *BinanceClient) GetOrder(r models.GetOrderRequest) (*models.GetOrderResp
 	url := c.buildURL(order)
 	return c.getOrder(url, r)
 }
+
+func (c *BinanceClient) cancelReplace(url string, params models.CancelReplaceRequest) (*models.CancelReplaceResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &models.CancelReplaceResponse{}
+	err = c.executeRequest(http.MethodPost, url, nil, response, true, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) CancelReplace(r models.CancelReplaceRequest) (*models.CancelReplaceResponse, error) {
+	url := c.buildURL(cancelReplace)
+	return c.cancelReplace(url, r)
+}

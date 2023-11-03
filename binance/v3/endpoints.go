@@ -6,7 +6,8 @@ const (
 	depth        = "/api/v3/depth"
 
 	// Account
-	testOrder  = "/api/v3/order/test"
-	order      = "/api/v3/order"
-	openOrders = "/api/v3/openOrders"
+	testOrder     = "/api/v3/order/test"
+	order         = "/api/v3/order"
+	openOrders    = "/api/v3/openOrders"
+	cancelReplace = "/api/v3/order/cancelReplace"
 )

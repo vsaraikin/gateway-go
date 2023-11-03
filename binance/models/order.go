@@ -3,8 +3,9 @@ package models
 import (
 	"errors"
 	"fmt"
-	"github.com/shopspring/decimal"
 	"strings"
+
+	"github.com/shopspring/decimal"
 )
 
 // NEW ORDER
@@ -286,4 +287,174 @@ func (o *GetOrderRequest) Validate() error {
 	}
 
 	return nil
+}
+
+type CancelReplaceRequest struct {
+	Symbol                  string  `url:"symbol"`
+	Side                    string  `url:"side"`
+	Type                    string  `url:"type"`
+	CancelReplaceMode       string  `url:"cancelReplaceMode"`
+	TimeInForce             string  `url:"timeInForce,omitempty"`
+	Quantity                float64 `url:"quantity,omitempty"`
+	QuoteOrderQty           float64 `url:"quoteOrderQty,omitempty"`
+	Price                   float64 `url:"price,omitempty"`
+	CancelNewClientOrderId  string  `url:"cancelNewClientOrderId,omitempty"`
+	CancelOrigClientOrderId string  `url:"cancelOrigClientOrderId,omitempty"`
+	CancelOrderId           int64   `url:"cancelOrderId,omitempty"`
+	NewClientOrderId        string  `url:"newClientOrderId,omitempty"`
+	StrategyId              int     `url:"strategyId,omitempty"`
+	StrategyType            int     `url:"strategyType,omitempty"`
+	StopPrice               float64 `url:"stopPrice,omitempty"`
+	TrailingDelta           int64   `url:"trailingDelta,omitempty"`
+	IcebergQty              float64 `url:"icebergQty,omitempty"`
+	NewOrderRespType        string  `url:"newOrderRespType,omitempty"`
+	SelfTradePreventionMode string  `url:"selfTradePreventionMode,omitempty"`
+	CancelRestrictions      string  `url:"cancelRestrictions,omitempty"`
+	RecvWindow              int64   `url:"recvWindow,omitempty"`
+	Timestamp               int64   `url:"timestamp"`
+}
+
+func (req *CancelReplaceRequest) Validate() error {
+	// Validate mandatory fields
+	if req.Symbol == "" {
+		return errors.New("symbol is mandatory")
+	}
+	if req.Side != "BUY" && req.Side != "SELL" {
+		return errors.New("side must be either BUY or SELL")
+	}
+	if req.Type == "" {
+		return errors.New("type is mandatory")
+	}
+	if req.CancelReplaceMode != "STOP_ON_FAILURE" && req.CancelReplaceMode != "ALLOW_FAILURE" {
+		return errors.New("cancelReplaceMode must be either STOP_ON_FAILURE or ALLOW_FAILURE")
+	}
+	if req.Timestamp == 0 {
+		return errors.New("timestamp is mandatory")
+	}
+
+	if req.StrategyType != 0 && req.StrategyType < 1000000 {
+		return errors.New("strategyType must be greater than or equal to 1000000")
+	}
+
+	if req.RecvWindow != 0 && req.RecvWindow > 60000 {
+		return errors.New("recvWindow must be less than or equal to 60000")
+	}
+
+	if req.CancelOrigClientOrderId == "" && req.CancelOrderId == 0 {
+		return errors.New("either cancelOrigClientOrderId or cancelOrderId must be provided")
+	}
+
+	if req.NewOrderRespType != "" {
+		switch req.NewOrderRespType {
+		case "ACK", "RESULT", "FULL":
+			// valid
+		default:
+			return errors.New("newOrderRespType must be either ACK, RESULT, or FULL")
+		}
+	}
+
+	if req.SelfTradePreventionMode != "" {
+		switch req.SelfTradePreventionMode {
+		case "EXPIRE_TAKER", "EXPIRE_MAKER", "EXPIRE_BOTH", "NONE":
+			// valid
+		default:
+			return errors.New("selfTradePreventionMode is not valid")
+		}
+	}
+
+	if req.CancelRestrictions != "" {
+		switch req.CancelRestrictions {
+		case "ONLY_NEW", "ONLY_PARTIALLY_FILLED":
+			// valid
+		default:
+			return errors.New("cancelRestrictions is not valid")
+		}
+	}
+
+	return nil
+}
+
+type CancelReplaceResponse struct {
+	Code           int64  `json:"code,omitempty"`
+	Msg            string `json:"msg,omitempty"`
+	CancelResult   string `json:"cancelResult,omitempty"`
+	NewOrderResult string `json:"newOrderResult,omitempty"`
+	CancelResponse struct {
+		Code                    int    `json:"code,omitempty"`
+		Msg                     string `json:"msg,omitempty"`
+		Symbol                  string `json:"symbol,omitempty"`
+		OrigClientOrderId       string `json:"origClientOrderId,omitempty"`
+		OrderId                 int64  `json:"orderId,omitempty"`
+		OrderListId             int64  `json:"orderListId,omitempty"`
+		ClientOrderId           string `json:"clientOrderId,omitempty"`
+		Price                   string `json:"price,omitempty"`
+		OrigQty                 string `json:"origQty,omitempty"`
+		ExecutedQty             string `json:"executedQty,omitempty"`
+		CumulativeQuoteQty      string `json:"cumulativeQuoteQty,omitempty"`
+		Status                  string `json:"status,omitempty"`
+		TimeInForce             string `json:"timeInForce,omitempty"`
+		Type                    string `json:"type,omitempty"`
+		Side                    string `json:"side,omitempty"`
+		SelfTradePreventionMode string `json:"selfTradePreventionMode,omitempty"`
+	} `json:"cancelResponse,omitempty"`
+	NewOrderResponse struct {
+		Code                    int64    `json:"code,omitempty"`
+		Msg                     string   `json:"msg,omitempty"`
+		Symbol                  string   `json:"symbol,omitempty"`
+		OrderId                 int64    `json:"orderId,omitempty"`
+		OrderListId             int64    `json:"orderListId,omitempty"`
+		ClientOrderId           string   `json:"clientOrderId,omitempty"`
+		TransactTime            uint64   `json:"transactTime,omitempty"`
+		Price                   string   `json:"price,omitempty"`
+		OrigQty                 string   `json:"origQty,omitempty"`
+		ExecutedQty             string   `json:"executedQty,omitempty"`
+		CumulativeQuoteQty      string   `json:"cumulativeQuoteQty,omitempty"`
+		Status                  string   `json:"status,omitempty"`
+		TimeInForce             string   `json:"timeInForce,omitempty"`
+		Type                    string   `json:"type,omitempty"`
+		Side                    string   `json:"side,omitempty"`
+		Fills                   []string `json:"fills,omitempty"`
+		SelfTradePreventionMode string   `json:"selfTradePreventionMode,omitempty"`
+	} `json:"newOrderResponse,omitempty"`
+	Data struct {
+		CancelResult   string `json:"cancelResult,omitempty"`
+		NewOrderResult string `json:"newOrderResult,omitempty"`
+		CancelResponse struct {
+			Code                    int64  `json:"code,omitempty"`
+			Msg                     string `json:"msg,omitempty"`
+			Symbol                  string `json:"symbol,omitempty"`
+			OrigClientOrderId       string `json:"origClientOrderId,omitempty"`
+			OrderId                 int64  `json:"orderId,omitempty"`
+			OrderListId             int64  `json:"orderListId,omitempty"`
+			ClientOrderId           string `json:"clientOrderId,omitempty"`
+			Price                   string `json:"price,omitempty"`
+			OrigQty                 string `json:"origQty,omitempty"`
+			ExecutedQty             string `json:"executedQty,omitempty"`
+			CumulativeQuoteQty      string `json:"cumulativeQuoteQty,omitempty"`
+			Status                  string `json:"status,omitempty"`
+			TimeInForce             string `json:"timeInForce,omitempty"`
+			Type                    string `json:"type,omitempty"`
+			Side                    string `json:"side,omitempty"`
+			SelfTradePreventionMode string `json:"selfTradePreventionMode,omitempty"`
+		} `json:"cancelResponse,omitempty"`
+		NewOrderResponse struct {
+			Code                    int64    `json:"code,omitempty"`
+			Msg                     string   `json:"msg,omitempty"`
+			Symbol                  string   `json:"symbol,omitempty"`
+			OrderId                 int64    `json:"orderId,omitempty"`
+			OrderListId             int64    `json:"orderListId,omitempty"`
+			ClientOrderId           string   `json:"clientOrderId,omitempty"`
+			TransactTime            uint64   `json:"transactTime,omitempty"`
+			Price                   string   `json:"price,omitempty"`
+			OrigQty                 string   `json:"origQty,omitempty"`
+			ExecutedQty             string   `json:"executedQty,omitempty"`
+			CumulativeQuoteQty      string   `json:"cumulativeQuoteQty,omitempty"`
+			Status                  string   `json:"status,omitempty"`
+			TimeInForce             string   `json:"timeInForce,omitempty"`
+			Type                    string   `json:"type,omitempty"`
+			Side                    string   `json:"side,omitempty"`
+			Fills                   []string `json:"fills,omitempty"`
+			SelfTradePreventionMode string   `json:"selfTradePreventionMode,omitempty"`
+		} `json:"newOrderResponse"`
+	} `json:"data,omitempty"`
 }
