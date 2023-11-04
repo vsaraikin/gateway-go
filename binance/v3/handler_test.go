@@ -16,7 +16,10 @@ func TestGetExchangeInfo(t *testing.T) {
 			// Populate with expected fields...
 		}
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			return
+		}
 	}))
 	defer server.Close()
 
