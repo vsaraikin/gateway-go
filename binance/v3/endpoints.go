@@ -2,9 +2,10 @@ package v3
 
 const (
 	// Market Data
-	exchangeInfo = "/api/v3/exchangeInfo"
-	depth        = "/api/v3/depth"
-	trades       = "/api/v3/trades"
+	exchangeInfo     = "/api/v3/exchangeInfo"
+	depth            = "/api/v3/depth"
+	trades           = "/api/v3/trades"
+	historicalTrades = "/api/v3/historicalTrades"
 
 	// Account
 	testOrder     = "/api/v3/order/test"
