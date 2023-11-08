@@ -158,6 +158,26 @@ func (c *BinanceClient) HistoricalTrades(r models.TradesRequest) (*[]models.Trad
 	return c.getTrades(url, r)
 }
 
+func (c *BinanceClient) aggTrades(url string, params models.AggTradeRequest) (*[]models.AggTradesResponse, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.AggTradesResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, false, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) AggTrades(r models.AggTradeRequest) (*[]models.AggTradesResponse, error) {
+	url := c.buildURL(aggTrades)
+	return c.aggTrades(url, r)
+}
+
 // ––––––––––– SPOT TRADING –––––––––––
 
 // NewOrderTest

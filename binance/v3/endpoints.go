@@ -6,6 +6,7 @@ const (
 	depth            = "/api/v3/depth"
 	trades           = "/api/v3/trades"
 	historicalTrades = "/api/v3/historicalTrades"
+	aggTrades        = "/api/v3/aggTrades"
 
 	// Account
 	testOrder     = "/api/v3/order/test"
