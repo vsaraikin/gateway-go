@@ -178,6 +178,26 @@ func (c *BinanceClient) AggTrades(r models.AggTradeRequest) (*[]models.AggTrades
 	return c.aggTrades(url, r)
 }
 
+func (c *BinanceClient) klines(url string, params models.KlineRequest) (any, error) {
+	err := params.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &[]models.KlineResponse{}
+	err = c.executeRequest(http.MethodGet, url, nil, response, false, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *BinanceClient) Klines(r models.KlineRequest) (any, error) {
+	url := c.buildURL(klines)
+	return c.klines(url, r)
+}
+
 // ––––––––––– SPOT TRADING –––––––––––
 
 // NewOrderTest
