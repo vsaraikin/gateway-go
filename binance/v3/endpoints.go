@@ -8,6 +8,7 @@ const (
 	historicalTrades = "/api/v3/historicalTrades"
 	aggTrades        = "/api/v3/aggTrades"
 	klines           = "/api/v3/klines"
+	uiklines         = "/api/v3/uiKlines"
 
 	// Account
 	testOrder     = "/api/v3/order/test"

@@ -178,7 +178,7 @@ func (c *BinanceClient) AggTrades(r models.AggTradeRequest) (*[]models.AggTrades
 	return c.aggTrades(url, r)
 }
 
-func (c *BinanceClient) klines(url string, params models.KlineRequest) (any, error) {
+func (c *BinanceClient) klines(url string, params models.KlineRequest) (*[]models.KlineResponse, error) {
 	err := params.Validate()
 	if err != nil {
 		return nil, err
@@ -193,8 +193,13 @@ func (c *BinanceClient) klines(url string, params models.KlineRequest) (any, err
 	return response, nil
 }
 
-func (c *BinanceClient) Klines(r models.KlineRequest) (any, error) {
+func (c *BinanceClient) Klines(r models.KlineRequest) (*[]models.KlineResponse, error) {
 	url := c.buildURL(klines)
+	return c.klines(url, r)
+}
+
+func (c *BinanceClient) UIKlines(r models.KlineRequest) (*[]models.KlineResponse, error) {
+	url := c.buildURL(uiklines)
 	return c.klines(url, r)
 }
 

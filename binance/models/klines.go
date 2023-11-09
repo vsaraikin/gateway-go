@@ -48,13 +48,13 @@ func (k *KlineResponse) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	k.OpenTime = int64(tmp.([]interface{})[0].(float64) * 1000000)
+	k.OpenTime = int64(tmp.([]interface{})[0].(float64))
 	k.OpenPrice, err = decimal.NewFromString(tmp.([]interface{})[1].(string))
 	k.HighPrice, err = decimal.NewFromString(tmp.([]interface{})[2].(string))
 	k.LowPrice, err = decimal.NewFromString(tmp.([]interface{})[3].(string))
 	k.ClosePrice, err = decimal.NewFromString(tmp.([]interface{})[4].(string))
 	k.Volume, err = decimal.NewFromString(tmp.([]interface{})[5].(string))
-	closeInNano := tmp.([]interface{})[6].(float64) * 1000000
+	closeInNano := tmp.([]interface{})[6].(float64)
 	k.CloseTime = int64(closeInNano)
 	k.QuoteVolume, err = decimal.NewFromString(tmp.([]interface{})[7].(string))
 	k.NumberOfTrades = int(tmp.([]interface{})[8].(float64))
