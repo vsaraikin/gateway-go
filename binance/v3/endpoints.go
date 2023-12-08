@@ -9,6 +9,11 @@ const (
 	aggTrades        = "/api/v3/aggTrades"
 	klines           = "/api/v3/klines"
 	uiklines         = "/api/v3/uiKlines"
+	avgPrice         = "/api/v3/avgPrice"
+	ticker24h        = "/api/v3/ticker/24hr"
+	price            = "/api/v3/ticker/price"
+	bookTicker       = "/api/v3/ticker/bookTicker"
+	ticker           = "/api/v3/ticker"
 
 	// Account
 	testOrder     = "/api/v3/order/test"

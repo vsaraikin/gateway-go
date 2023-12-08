@@ -54,9 +54,9 @@ func (c *BinanceWsClient) subscribe(url string, handler func(message []byte) err
 	return nil, done
 }
 
-type handlerEvent func(e *models.DepthEvent)
+type depthHandler func(e *models.DepthEvent)
 
-func (c *BinanceWsClient) serveDepth(url string, handler handlerEvent) (error, chan<- struct{}) {
+func (c *BinanceWsClient) subscribeDepth(url string, handler depthHandler) (error, chan<- struct{}) {
 	wsHandler := func(event []byte) error {
 		depthEventRaw := new(models.DepthEventRaw)
 		if err := json.Unmarshal(event, depthEventRaw); err != nil {
@@ -70,7 +70,27 @@ func (c *BinanceWsClient) serveDepth(url string, handler handlerEvent) (error, c
 	return c.subscribe(url, wsHandler)
 }
 
-func (c *BinanceWsClient) SubscribeDepth(symbol string, handler handlerEvent) (error, chan<- struct{}) {
+func (c *BinanceWsClient) SubscribeDepth(symbol string, handler depthHandler) (error, chan<- struct{}) {
 	url := fmt.Sprintf("%s%s%s", c.baseURL, symbol, depth)
-	return c.serveDepth(url, handler)
+	return c.subscribeDepth(url, handler)
+}
+
+type aggTradeHandler func(e *models.AggTrade)
+
+func (c *BinanceWsClient) subscribeAggTrade(url string, handler aggTradeHandler) (error, chan<- struct{}) {
+	wsHandler := func(event []byte) error {
+		aggTradesEvent := new(models.AggTrade)
+		if err := json.Unmarshal(event, aggTradesEvent); err != nil {
+			log.Println("Error during JSON parsing:", err)
+			return err
+		}
+		handler(aggTradesEvent)
+		return nil
+	}
+	return c.subscribe(url, wsHandler)
+}
+
+func (c *BinanceWsClient) SubscribeAggTrade(symbol string, handler aggTradeHandler) (error, chan<- struct{}) {
+	url := fmt.Sprintf("%s%s%s", c.baseURL, symbol, depth)
+	return c.subscribeAggTrade(url, handler)
 }

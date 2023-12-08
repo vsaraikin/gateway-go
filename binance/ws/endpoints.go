@@ -1,5 +1,6 @@
 package ws
 
 const (
-	depth = "@depth"
+	aggTrade = "@aggTrade"
+	depth    = "@depth"
 )

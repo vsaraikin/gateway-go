@@ -15,11 +15,11 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	dataHandler := func(e *models.AggTrade) {
+	dataHandler := func(e *models.DepthEvent) {
 		fmt.Println(e)
 	}
 
-	err, done := client.SubscribeAggTrade("btcusdt", dataHandler)
+	err, done := client.SubscribeDepth("btcusdt", dataHandler)
 
 	if err != nil {
 		fmt.Errorf(err.Error())
